@@ -64,8 +64,11 @@ pub fn Start(title: []const u8, width: c_int, height: c_int) void {
     c.glfwGetFramebufferSize(window, &glWidth, &glHeight);
     c.glEnable(c.GL_DEPTH_TEST);
 
+    c.glEnable(c.GL_BLEND);
+    c.glBlendFunc(c.GL_SRC_ALPHA, c.GL_ONE_MINUS_SRC_ALPHA);
+
     //unlock fps
-    //c.glfwSwapInterval(0);
+    c.glfwSwapInterval(0);
 
     graphics.Start(glWidth, glHeight);
 }

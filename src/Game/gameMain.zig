@@ -8,6 +8,7 @@ const time = @import("../Engine/time.zig");
 const aTexture = @embedFile("assets/A.png");
 const bTexture = @embedFile("assets/B.png");
 const cTexture = @embedFile("assets/C.png");
+const circleTexture = @embedFile("assets/Circle.png");
 
 //player
 var player: *types.Object = undefined;
@@ -27,19 +28,28 @@ pub fn Start() void {
     testBlock = objectHandler.CreateObject();
     testBlock.pos = types.Vec2{ .x = 1, .y = 1 };
     testBlock.layer = -2;
-    testBlock.colour = types.Colour{
-        .r = 1,
-        .g = 0.5,
-        .b = 0.2,
-    };
 
-    player.OnCollisionCallback = Test;
+    player.SetCollisionCallback(Test);
 
-    player.graphic.SetAnimationLength(3);
-    player.graphic.LoadAnimationFrame(0, &aTexture[0], aTexture.len);
-    player.graphic.LoadAnimationFrame(1, &bTexture[0], bTexture.len);
-    player.graphic.LoadAnimationFrame(2, &cTexture[0], cTexture.len);
-    player.graphic.SetFPS(2);
+    //player.graphic.SetAnimationLength(3);
+    //player.graphic.LoadAnimationFrame(0, &aTexture[0], aTexture.len);
+    //player.graphic.LoadAnimationFrame(1, &bTexture[0], bTexture.len);
+    //player.graphic.LoadAnimationFrame(2, &cTexture[0], cTexture.len);
+    //player.graphic.SetFPS(2);
+
+    //turn to function in object :)
+
+    //testBlock.graphic.LoadStaticTexture(&circleTexture[0], circleTexture.len);
+    testBlock.graphic.LoadStaticTexture(&aTexture[0], aTexture.len);
+
+    player.graphic.LoadStaticTexture(&circleTexture[0], circleTexture.len);
+    //player.graphic.LoadStaticTexture(&aTexture[0], aTexture.len);
+
+    //testBlock.SetCircleCollision(0.5, types.Vec2{}, false);
+    testBlock.SetRectCollision(types.Vec2{ .x = 1, .y = 1 }, types.Vec2{}, false);
+
+    player.SetCircleCollision(0.5, types.Vec2{}, false);
+    //player.SetRectCollision(types.Vec2{ .x = 1, .y = 1 }, types.Vec2{}, false);
 }
 
 pub fn Update() void {
@@ -65,11 +75,12 @@ pub fn Update() void {
 
     if (c.glfwGetKey(window.window, c.GLFW_KEY_R) == c.GLFW_PRESS)
         player.graphic.StartAnimation();
+    std.debug.print("frame\n", .{});
 }
 
 fn Test(other: *types.Object) void {
     _ = other;
-    std.debug.print("Hello from test\n", .{});
+    std.debug.print("Collision\n", .{});
 }
 
 pub fn Stop() void {
