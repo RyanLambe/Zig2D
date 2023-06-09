@@ -69,6 +69,7 @@ pub fn Start(title: []const u8, width: c_int, height: c_int) void {
 
     //unlock fps
     c.glfwSwapInterval(0);
+    c.glfwSetInputMode(window, c.GLFW_STICKY_KEYS, c.GLFW_TRUE);
 
     graphics.Start(glWidth, glHeight);
 }

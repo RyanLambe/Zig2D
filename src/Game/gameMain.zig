@@ -37,19 +37,19 @@ pub fn Start() void {
     player.graphic.LoadAnimationFrame(2, &cTexture[0], cTexture.len);
     player.graphic.SetFPS(2);
 
-    //turn to function in object :)
+    //mess around with
 
     //testBlock.graphic.LoadStaticTexture(&circleTexture[0], circleTexture.len);
-    //testBlock.graphic.LoadStaticTexture(&bTexture[0], bTexture.len);
+    testBlock.graphic.LoadStaticTexture(&bTexture[0], bTexture.len);
 
-    //player.graphic.LoadStaticTexture(&circleTexture[0], circleTexture.len);
+    player.graphic.LoadStaticTexture(&circleTexture[0], circleTexture.len);
     //player.graphic.LoadStaticTexture(&aTexture[0], aTexture.len);
 
-    //testBlock.collider.SetCircleCollision(0.5, types.Vec2{}, false);
-    testBlock.collider.SetRectCollision(types.Vec2{ .x = 1, .y = 1 }, types.Vec2{}, false);
+    //testBlock.collider.SetCircleCollision(0.5, types.Vec2{}, true);
+    testBlock.collider.SetRectCollision(types.Vec2{ .x = 1, .y = 1 }, types.Vec2{}, true);
 
-    //player.collider.SetCircleCollision(0.5, types.Vec2{}, false);
-    player.collider.SetRectCollision(types.Vec2{ .x = 1, .y = 1 }, types.Vec2{}, false);
+    player.collider.SetCircleCollision(0.5, types.Vec2{}, false);
+    //player.collider.SetRectCollision(types.Vec2{ .x = 1, .y = 1 }, types.Vec2{}, false);
 }
 
 pub fn Update() void {

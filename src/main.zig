@@ -6,7 +6,7 @@ const physics = @import("Engine/physics.zig");
 pub fn main() !void {
 
     //start
-    window.Start("Game", 640, 480);
+    window.Start("Game", 1280, 720);
     time.Start();
     program.Start();
 

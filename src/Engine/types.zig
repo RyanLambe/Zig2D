@@ -213,6 +213,9 @@ pub const Collider = struct {
 pub const Physics = struct {
     object: *Object = undefined,
 
-    static: bool = false,
+    static: bool = false, //do i need???
     mass: f32 = 1,
+
+    //velocity
+    //acceleration
 };

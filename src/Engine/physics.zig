@@ -119,14 +119,14 @@ fn RectAndRect(a: *types.Object, b: *types.Object) CollisionData {
 
 fn CircleAndCircle(a: *types.Object, b: *types.Object) CollisionData {
 
-    //get origin
+    //get positions
     var ax = a.transform.pos.x + a.collider.colliderOffset.x;
     var ay = a.transform.pos.y + a.collider.colliderOffset.y;
 
     var bx = b.transform.pos.x + b.collider.colliderOffset.x;
     var by = b.transform.pos.y + b.collider.colliderOffset.y;
 
-    //check if intersecting
+    //check if collision
     var distance: f32 = std.math.sqrt(((bx - ax) * (bx - ax)) + ((by - ay) * (by - ay)));
     if (distance > a.collider.colliderScale.circle + b.collider.colliderScale.circle)
         return CollisionData{ .hit = false };
@@ -138,52 +138,52 @@ fn CircleAndCircle(a: *types.Object, b: *types.Object) CollisionData {
     //return collision data
     var data = CollisionData{ .hit = true };
 
+    distance = std.math.max(distance, 0.000001);
+    var toB = types.Vec2{ .x = (bx - ax) / distance, .y = (by - ay) / distance };
+
     data.objA = a;
     data.objB = b;
-    //data.A = ???;
-    //data.B = ???;
+    data.A = types.Vec2{ .x = ax + a.collider.colliderScale.circle * toB.x, .y = ay + a.collider.colliderScale.circle * toB.y };
+    data.B = types.Vec2{ .x = bx + b.collider.colliderScale.circle * -toB.x, .y = by + b.collider.colliderScale.circle * -toB.y };
     data.depth = std.math.sqrt(((data.B.x - data.A.x) * (data.B.x - data.A.x)) + ((data.B.y - data.A.y) * (data.B.y - data.A.y)));
-    data.Normal = types.Vec2{ .x = data.B.x - data.A.x, .y = data.B.y - data.A.y };
-    data.Normal.x /= data.depth;
-    data.Normal.y /= data.depth;
+    data.depth = std.math.max(data.depth, 0.000001);
+    data.Normal = types.Vec2{ .x = (data.A.x - data.B.x) / data.depth, .y = (data.A.y - data.B.y) / data.depth };
 
     return data;
 }
 
 fn RectAndCircle(rect: *types.Object, circle: *types.Object) CollisionData {
 
-    //get position of circle, clamped to within rect (closest point to circle)
-    var rx = rect.transform.pos.x + rect.collider.colliderOffset.x;
-    var rxs = (rect.collider.colliderScale.rect.x / 2);
-    var ry = rect.transform.pos.y + rect.collider.colliderOffset.y;
-    var rys = (rect.collider.colliderScale.rect.y / 2);
+    //get positions of rect and circle
+    var ax = rect.transform.pos.x + rect.collider.colliderOffset.x;
+    var axs = (rect.collider.colliderScale.rect.x / 2);
+    var ay = rect.transform.pos.y + rect.collider.colliderOffset.y;
+    var ays = (rect.collider.colliderScale.rect.y / 2);
 
-    var ax = circle.transform.pos.x + circle.collider.colliderOffset.x;
-    var ay = circle.transform.pos.y + circle.collider.colliderOffset.y;
+    var bx = circle.transform.pos.x + circle.collider.colliderOffset.x;
+    var by = circle.transform.pos.y + circle.collider.colliderOffset.y;
 
-    var cx = std.math.clamp(ax, rx - rxs, rx + rxs);
-    var cy = std.math.clamp(ay, ry - rys, ry + rys);
+    //get distance between objects
+    var distanceX: f32 = std.math.max(ax - axs, std.math.min(bx, ax + axs)) - bx;
+    var distanceY: f32 = std.math.max(ay - ays, std.math.min(by, ay + ays)) - by;
 
-    //check distance between clamped pos and circle pos
-    var distance: f32 = std.math.sqrt(((cx - ax) * (cx - ax)) + ((cy - ay) * (cy - ay)));
+    var distance: f32 = std.math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
+    distance = std.math.max(distance, 0.000001);
+
+    //check if collision
     if (distance > circle.collider.colliderScale.circle)
         return CollisionData{ .hit = false };
 
     //tell objects about collision
-    circle.collider.CollisionCallback(rect);
     rect.collider.CollisionCallback(circle);
+    circle.collider.CollisionCallback(rect);
 
     //return collision data
     var data = CollisionData{ .hit = true };
-
     data.objA = rect;
     data.objB = circle;
-    //data.A = ???;
-    //data.B = ???;
-    data.depth = std.math.sqrt(((data.B.x - data.A.x) * (data.B.x - data.A.x)) + ((data.B.y - data.A.y) * (data.B.y - data.A.y)));
-    data.Normal = types.Vec2{ .x = data.B.x - data.A.x, .y = data.B.y - data.A.y };
-    data.Normal.x /= data.depth;
-    data.Normal.y /= data.depth;
+    data.depth = circle.collider.colliderScale.circle - distance;
+    data.Normal = types.Vec2{ .x = -distanceX / distance, .y = -distanceY / distance };
 
     return data;
 }
@@ -192,12 +192,12 @@ fn positionSolver(collisionData: CollisionData) void {
     var totalMass: f32 = collisionData.objA.physics.mass + collisionData.objB.physics.mass;
     var correctionScale: f32 = collisionData.depth / totalMass;
 
-    if (!collisionData.objA.physics.static) {
+    if (collisionData.objA.physicsType == types.PhysicsType.PhysicsEnabled) {
         collisionData.objA.transform.pos.x -= collisionData.Normal.x * (collisionData.objA.physics.mass * correctionScale);
         collisionData.objA.transform.pos.y -= collisionData.Normal.y * (collisionData.objA.physics.mass * correctionScale);
     }
 
-    if (!collisionData.objB.physics.static) {
+    if (collisionData.objB.physicsType == types.PhysicsType.PhysicsEnabled) {
         collisionData.objB.transform.pos.x += collisionData.Normal.x * (collisionData.objB.physics.mass * correctionScale);
         collisionData.objB.transform.pos.y += collisionData.Normal.y * (collisionData.objB.physics.mass * correctionScale);
     }
