@@ -33,28 +33,21 @@ pub const PhysicsType = enum {
 };
 
 pub const Object = struct {
-    id: u32,
+    transform: Transform = Transform{},
+    graphic: Graphic = Graphic{},
+    collider: Collider = Collider{},
+    physics: Physics = Physics{},
 
-    //transformation
+    //should be treated as read only
+    physicsType: PhysicsType = PhysicsType.None,
+    id: u32,
+};
+
+pub const Transform = struct {
     pos: Vec2 = Vec2{},
     rot: f32 = 0,
     scale: Vec2 = Vec2{ .x = 1, .y = 1 },
     layer: i8 = 0, //-128 to 127
-
-    //colours
-    colour: Colour = Colour{},
-    graphic: Graphic = Graphic{},
-
-    //collider
-    circleCollider: bool = false,
-    colliderOffset: Vec2 = Vec2{},
-    colliderScale: ColliderScale = ColliderScale{ .rect = Vec2{ .x = 1, .y = 1 } },
-    OnCollisionCallback: *const fn (other: *Object) void = undefined,
-    CollisionCallbackEnabled: bool = false,
-
-    //physics
-    physicsType: PhysicsType = PhysicsType.None,
-    //???
 
     pub fn up(this: @This()) Vec2 {
         var out: Vec2 = Vec2{};
@@ -75,52 +68,12 @@ pub const Object = struct {
 
         return out;
     }
-
-    pub fn SetRectCollision(this: *@This(), rectScale: Vec2, rectOffset: Vec2, enablePhysics: bool) void {
-        this.circleCollider = false;
-        this.colliderScale = ColliderScale{ .rect = rectScale };
-        this.colliderOffset = rectOffset;
-        if (enablePhysics) {
-            this.physicsType = PhysicsType.PhysicsEnabled;
-        } else {
-            this.physicsType = PhysicsType.CollisionsOnly;
-        }
-    }
-
-    pub fn SetCircleCollision(this: *@This(), circleRadius: f32, circleOffset: Vec2, enablePhysics: bool) void {
-        this.circleCollider = true;
-        this.colliderScale = ColliderScale{ .circle = circleRadius };
-        this.colliderOffset = circleOffset;
-        if (enablePhysics) {
-            this.physicsType = PhysicsType.PhysicsEnabled;
-        } else {
-            this.physicsType = PhysicsType.CollisionsOnly;
-        }
-    }
-
-    pub fn RemoveCollision(this: *@This()) void {
-        this.colliderScale = ColliderScale{ .rect = Vec2{ .x = 1, .y = 1 } };
-        this.colliderOffset = Vec2{};
-        this.physicsType = PhysicsType.None;
-    }
-
-    pub fn SetCollisionCallback(this: *@This(), callback: *const fn (other: *Object) void) void {
-        this.OnCollisionCallback = callback;
-        this.CollisionCallbackEnabled = true;
-    }
-
-    pub fn RemoveCollisionCallback(this: *@This()) void {
-        this.OnCollisionCallback = undefined;
-        this.CollisionCallbackEnabled = false;
-    }
-
-    pub fn CollisionCallback(this: *@This(), other: *Object) void {
-        if (this.CollisionCallbackEnabled)
-            this.OnCollisionCallback(other);
-    }
 };
 
 pub const Graphic = struct {
+    colour: Colour = Colour{},
+
+    //should be treated as read only
     textures: []c_uint = undefined,
     fps: i32 = 12,
     startFrame: i32 = 0,
@@ -203,3 +156,63 @@ fn LoadTexture(imageData: *const u8, imageLength: c_ulonglong) c_uint {
         return 0;
     }
 }
+
+pub const Collider = struct {
+    object: *Object = undefined,
+
+    circleCollider: bool = false,
+    colliderOffset: Vec2 = Vec2{},
+    colliderScale: ColliderScale = ColliderScale{ .rect = Vec2{ .x = 1, .y = 1 } },
+    OnCollisionCallback: *const fn (other: *Object) void = undefined,
+    CollisionCallbackEnabled: bool = false,
+
+    pub fn SetRectCollision(this: *@This(), rectScale: Vec2, rectOffset: Vec2, enablePhysics: bool) void {
+        this.circleCollider = false;
+        this.colliderScale = ColliderScale{ .rect = rectScale };
+        this.colliderOffset = rectOffset;
+        if (enablePhysics) {
+            this.object.physicsType = PhysicsType.PhysicsEnabled;
+        } else {
+            this.object.physicsType = PhysicsType.CollisionsOnly;
+        }
+    }
+
+    pub fn SetCircleCollision(this: *@This(), circleRadius: f32, circleOffset: Vec2, enablePhysics: bool) void {
+        this.circleCollider = true;
+        this.colliderScale = ColliderScale{ .circle = circleRadius };
+        this.colliderOffset = circleOffset;
+        if (enablePhysics) {
+            this.object.physicsType = PhysicsType.PhysicsEnabled;
+        } else {
+            this.object.physicsType = PhysicsType.CollisionsOnly;
+        }
+    }
+
+    pub fn RemoveCollision(this: *@This()) void {
+        this.colliderScale = ColliderScale{ .rect = Vec2{ .x = 1, .y = 1 } };
+        this.colliderOffset = Vec2{};
+        this.object.physicsType = PhysicsType.None;
+    }
+
+    pub fn SetCollisionCallback(this: *@This(), callback: *const fn (other: *Object) void) void {
+        this.OnCollisionCallback = callback;
+        this.CollisionCallbackEnabled = true;
+    }
+
+    pub fn RemoveCollisionCallback(this: *@This()) void {
+        this.OnCollisionCallback = undefined;
+        this.CollisionCallbackEnabled = false;
+    }
+
+    pub fn CollisionCallback(this: *@This(), other: *Object) void {
+        if (this.CollisionCallbackEnabled)
+            this.OnCollisionCallback(other);
+    }
+};
+
+pub const Physics = struct {
+    object: *Object = undefined,
+
+    static: bool = false,
+    mass: f32 = 1,
+};

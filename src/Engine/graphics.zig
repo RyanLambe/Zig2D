@@ -64,13 +64,13 @@ pub fn Render() void {
     while (i < objects.len) : (i += 1) {
 
         //update object uniform
-        SetMatrixUniform(objects[i].pos, objects[i].rot, objects[i].scale);
+        SetMatrixUniform(objects[i].transform.pos, objects[i].transform.rot, objects[i].transform.scale);
 
         location = c.glGetUniformLocation(shaders.program, "objectLayer");
-        c.glUniform1i(location, @intCast(c_int, objects[i].layer));
+        c.glUniform1i(location, @intCast(c_int, objects[i].transform.layer));
 
         location = c.glGetUniformLocation(shaders.program, "colour");
-        c.glUniform3f(location, objects[i].colour.r, objects[i].colour.g, objects[i].colour.b);
+        c.glUniform3f(location, objects[i].graphic.colour.r, objects[i].graphic.colour.g, objects[i].graphic.colour.b);
 
         objects[i].graphic.PrepTexture();
 

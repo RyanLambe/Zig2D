@@ -14,6 +14,10 @@ pub fn CreateObject() *types.Object {
     data.append(types.Object{ .id = nextId }) catch unreachable;
     nextId += 1;
 
+    //give collider and physics references to object
+    data.items[data.items.len - 1].collider.object = &data.items[data.items.len - 1];
+    data.items[data.items.len - 1].physics.object = &data.items[data.items.len - 1];
+
     return &data.items[data.items.len - 1];
 }
 
