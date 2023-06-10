@@ -26,7 +26,8 @@ pub fn Start() void {
 
     //create test block
     testBlock = objectHandler.CreateObject();
-    testBlock.transform.pos = types.Vec2{ .x = 2, .y = 1 };
+    testBlock.transform.pos = types.Vec2{ .x = 0, .y = -5 };
+    testBlock.transform.scale = types.Vec2{ .x = 10, .y = 1 };
     testBlock.transform.layer = -2;
 
     player.collider.SetCollisionCallback(Test);
@@ -46,9 +47,9 @@ pub fn Start() void {
     //player.graphic.LoadStaticTexture(&aTexture[0], aTexture.len);
 
     //testBlock.collider.SetCircleCollision(0.5, types.Vec2{}, true);
-    testBlock.collider.SetRectCollision(types.Vec2{ .x = 1, .y = 1 }, types.Vec2{}, true);
+    testBlock.collider.SetRectCollision(types.Vec2{ .x = 10, .y = 1 }, types.Vec2{}, false);
 
-    player.collider.SetCircleCollision(0.5, types.Vec2{}, false);
+    player.collider.SetCircleCollision(0.5, types.Vec2{}, true);
     //player.collider.SetRectCollision(types.Vec2{ .x = 1, .y = 1 }, types.Vec2{}, false);
 }
 

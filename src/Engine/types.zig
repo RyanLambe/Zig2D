@@ -216,6 +216,6 @@ pub const Physics = struct {
     static: bool = false, //do i need???
     mass: f32 = 1,
 
-    //velocity
-    //acceleration
+    velocity: Vec2 = Vec2{},
+    force: Vec2 = Vec2{},
 };

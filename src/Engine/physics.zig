@@ -1,6 +1,9 @@
 const std = @import("std");
 const types = @import("types.zig");
+const time = @import("time.zig");
 const objectHandler = @import("objectHandler.zig");
+
+pub var gravity: types.Vec2 = types.Vec2{ .x = 0, .y = -9.81 };
 
 const CollisionData = struct {
     objA: *types.Object = undefined,
@@ -16,7 +19,28 @@ pub fn Update() void {
     var objects = objectHandler.GetObjects();
     var collisions = std.ArrayList(CollisionData).init(std.heap.page_allocator);
 
+    //apply dynamics
     var i: usize = 0;
+    while (i < objects.len) : (i += 1) {
+        if (objects[i].physicsType != types.PhysicsType.PhysicsEnabled)
+            continue;
+
+        //apply gravity
+        objects[i].physics.force.x += objects[i].physics.mass * gravity.x;
+        objects[i].physics.force.y += objects[i].physics.mass * gravity.y;
+
+        //apply velocity and force
+        objects[i].physics.velocity.x += objects[i].physics.force.x / objects[i].physics.mass * time.DeltaTime();
+        objects[i].physics.velocity.y += objects[i].physics.force.y / objects[i].physics.mass * time.DeltaTime();
+
+        objects[i].transform.pos.x += objects[i].physics.velocity.x * time.DeltaTime();
+        objects[i].transform.pos.y += objects[i].physics.velocity.y * time.DeltaTime();
+
+        objects[i].physics.force = types.Vec2{};
+    }
+
+    //check for collisions
+    i = 0;
     while (i < objects.len) : (i += 1) {
 
         //check if collision is enabled
@@ -37,13 +61,24 @@ pub fn Update() void {
         }
     }
 
+    //solve for collisions
     i = 0;
     while (i < collisions.items.len) : (i += 1) {
         if (collisions.items[i].depth == -1)
             continue;
 
-        //do stuff
-        positionSolver(collisions.items[i]);
+        var totalMass: f32 = collisions.items[i].objA.physics.mass + collisions.items[i].objB.physics.mass;
+        var correctionScale: f32 = collisions.items[i].depth / totalMass;
+
+        if (collisions.items[i].objA.physicsType == types.PhysicsType.PhysicsEnabled) {
+            collisions.items[i].objA.transform.pos.x -= collisions.items[i].Normal.x * (collisions.items[i].objA.physics.mass * correctionScale);
+            collisions.items[i].objA.transform.pos.y -= collisions.items[i].Normal.y * (collisions.items[i].objA.physics.mass * correctionScale);
+        }
+
+        if (collisions.items[i].objB.physicsType == types.PhysicsType.PhysicsEnabled) {
+            collisions.items[i].objB.transform.pos.x += collisions.items[i].Normal.x * (collisions.items[i].objB.physics.mass * correctionScale);
+            collisions.items[i].objB.transform.pos.y += collisions.items[i].Normal.y * (collisions.items[i].objB.physics.mass * correctionScale);
+        }
     }
 
     collisions.deinit();
@@ -186,19 +221,4 @@ fn RectAndCircle(rect: *types.Object, circle: *types.Object) CollisionData {
     data.Normal = types.Vec2{ .x = -distanceX / distance, .y = -distanceY / distance };
 
     return data;
-}
-
-fn positionSolver(collisionData: CollisionData) void {
-    var totalMass: f32 = collisionData.objA.physics.mass + collisionData.objB.physics.mass;
-    var correctionScale: f32 = collisionData.depth / totalMass;
-
-    if (collisionData.objA.physicsType == types.PhysicsType.PhysicsEnabled) {
-        collisionData.objA.transform.pos.x -= collisionData.Normal.x * (collisionData.objA.physics.mass * correctionScale);
-        collisionData.objA.transform.pos.y -= collisionData.Normal.y * (collisionData.objA.physics.mass * correctionScale);
-    }
-
-    if (collisionData.objB.physicsType == types.PhysicsType.PhysicsEnabled) {
-        collisionData.objB.transform.pos.x += collisionData.Normal.x * (collisionData.objB.physics.mass * correctionScale);
-        collisionData.objB.transform.pos.y += collisionData.Normal.y * (collisionData.objB.physics.mass * correctionScale);
-    }
 }
