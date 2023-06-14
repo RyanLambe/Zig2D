@@ -4,8 +4,6 @@ const c = @import("c.zig").c;
 const shaders = @import("shaders.zig");
 const time = @import("time.zig");
 
-const PI: f32 = 3.14159;
-
 pub var arena: std.heap.ArenaAllocator = undefined;
 pub var allocator: std.mem.Allocator = undefined;
 
@@ -19,6 +17,65 @@ pub const Colour = struct {
 pub const Vec2 = struct {
     x: f32 = 0,
     y: f32 = 0,
+
+    pub fn Normalize(vec: Vec2) Vec2 {
+        var length = std.math.sqrt(vec.x * vec.x + vec.y * vec.y);
+        if (length == 0)
+            return Vec2{};
+        return Vec2{ .x = vec.x / length, .y = vec.y / length };
+    }
+
+    pub fn Dot(this: Vec2, other: Vec2) f32 {
+        return this.x * other.x + this.y * other.y;
+    }
+
+    pub fn Add(this: Vec2, other: Vec2) Vec2 {
+        return Vec2{ .x = this.x + other.x, .y = this.y + other.y };
+    }
+
+    pub fn AddX(this: Vec2, x: f32) Vec2 {
+        return Vec2{ .x = this.x + x, .y = this.y + x };
+    }
+
+    pub fn AddXY(this: Vec2, x: f32, y: f32) Vec2 {
+        return Vec2{ .x = this.x + x, .y = this.y + y };
+    }
+
+    pub fn Sub(this: Vec2, other: Vec2) Vec2 {
+        return Vec2{ .x = this.x - other.x, .y = this.y - other.y };
+    }
+
+    pub fn SubX(this: Vec2, x: f32) Vec2 {
+        return Vec2{ .x = this.x - x, .y = this.y - x };
+    }
+
+    pub fn SubXY(this: Vec2, x: f32, y: f32) Vec2 {
+        return Vec2{ .x = this.x - x, .y = this.y - y };
+    }
+
+    pub fn Mul(this: Vec2, other: Vec2) Vec2 {
+        return Vec2{ .x = this.x * other.x, .y = this.y * other.y };
+    }
+
+    pub fn MulX(this: Vec2, x: f32) Vec2 {
+        return Vec2{ .x = this.x * x, .y = this.y * x };
+    }
+
+    pub fn MulXY(this: Vec2, x: f32, y: f32) Vec2 {
+        return Vec2{ .x = this.x * x, .y = this.y * y };
+    }
+
+    pub fn Div(this: Vec2, other: Vec2) Vec2 {
+        return Vec2{ .x = this.x / other.x, .y = this.y / other.y };
+    }
+
+    pub fn DivX(this: Vec2, x: f32) Vec2 {
+        return Vec2{ .x = this.x / x, .y = this.y / x };
+    }
+
+    pub fn DivXY(this: Vec2, x: f32, y: f32) Vec2 {
+        return Vec2{ .x = this.x / x, .y = this.y / y };
+    }
 };
 
 pub const ColliderScale = union {
@@ -51,7 +108,7 @@ pub const Transform = struct {
 
     pub fn up(this: @This()) Vec2 {
         var out: Vec2 = Vec2{};
-        var rrot: f32 = (this.rot) * PI / 180.0;
+        var rrot: f32 = (this.rot) * std.math.pi / 180.0;
 
         out.x = std.math.sin(rrot);
         out.y = std.math.cos(rrot);
@@ -61,7 +118,7 @@ pub const Transform = struct {
 
     pub fn right(this: *@This()) Vec2 {
         var out: Vec2 = Vec2{};
-        var rrot: f32 = (this.rot) * PI / 180.0;
+        var rrot: f32 = (this.rot) * std.math.pi / 180.0;
 
         out.x = std.math.cos(rrot);
         out.y = -std.math.sin(rrot);
@@ -78,11 +135,13 @@ pub const Graphic = struct {
     fps: i32 = 12,
     startFrame: i32 = 0,
     curentFrame: i32 = -1,
-    currentTexture: c_uint = undefined,
+    playing: bool = false,
+    currentTexture: usize = undefined,
 
     pub fn LoadStaticTexture(this: *@This(), imageData: *const u8, imageLength: c_ulonglong) void {
         this.SetAnimationLength(1);
         this.textures[0] = LoadTexture(imageData, imageLength);
+        this.currentTexture = 0;
     }
 
     pub fn SetAnimationLength(this: *@This(), frameCount: usize) void {
@@ -99,10 +158,19 @@ pub const Graphic = struct {
         }
 
         this.textures[frame] = LoadTexture(imageData, imageLength);
+        
+        if(frame == 0){
+            this.currentTexture = 0;
+        }
     }
 
-    pub fn StartAnimation(this: *@This()) void {
-        this.startFrame = time.GetFrame(this.fps) + 1;
+    pub fn PlayAnimation(this: *@This()) void {
+        this.startFrame = time.GetFrame(this.fps);
+        this.playing = true;
+    }
+
+    pub fn PauseAnimation(this: *@This()) void {
+        this.playing = false;
     }
 
     pub fn SetFPS(this: *@This(), fps: i32) void {
@@ -112,16 +180,19 @@ pub const Graphic = struct {
     }
 
     pub fn PrepTexture(this: *@This()) void {
+        
+        //check if should be texture
         var location: c_int = c.glGetUniformLocation(shaders.program, "useTexture");
         if (this.textures.len > 0) {
-            if (time.GetFrame(this.fps) == this.curentFrame) {
-                c.glBindTexture(c.GL_TEXTURE_2D, this.currentTexture);
+            
+            if (time.GetFrame(this.fps) == this.curentFrame or (!this.playing)) {
+                c.glBindTexture(c.GL_TEXTURE_2D, this.textures[this.currentTexture]);
             } else {
                 var frame = @mod(@intCast(usize, time.GetFrame(this.fps) - this.startFrame), this.textures.len);
                 c.glBindTexture(c.GL_TEXTURE_2D, this.textures[frame]);
 
                 this.curentFrame = time.GetFrame(this.fps);
-                this.currentTexture = this.textures[frame];
+                this.currentTexture = frame;
             }
 
             c.glUniform1i(location, 1);
@@ -213,9 +284,15 @@ pub const Collider = struct {
 pub const Physics = struct {
     object: *Object = undefined,
 
-    static: bool = false, //do i need???
+    static: bool = false,
     mass: f32 = 1,
+    elasticity: f32 = 2.1,
 
     velocity: Vec2 = Vec2{},
-    force: Vec2 = Vec2{},
+    acceleration: Vec2 = Vec2{.x = 0, .y = -9.81},
+
+    pub fn ApplyImpulse(this: *@This(), amount: Vec2) void {
+        this.velocity.x += amount.x;
+        this.velocity.y += amount.y;
+    }
 };

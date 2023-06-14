@@ -1,6 +1,5 @@
 const std = @import("std");
-const c = @import("../Engine/c.zig").c;
-const window = @import("../Engine/window.zig");
+const input = @import("../Engine/input.zig");
 const objectHandler = @import("../Engine/objectHandler.zig");
 const types = @import("../Engine/types.zig");
 const time = @import("../Engine/time.zig");
@@ -43,39 +42,36 @@ pub fn Start() void {
     //testBlock.graphic.LoadStaticTexture(&circleTexture[0], circleTexture.len);
     testBlock.graphic.LoadStaticTexture(&bTexture[0], bTexture.len);
 
-    player.graphic.LoadStaticTexture(&circleTexture[0], circleTexture.len);
+    //player.graphic.LoadStaticTexture(&circleTexture[0], circleTexture.len);
     //player.graphic.LoadStaticTexture(&aTexture[0], aTexture.len);
 
     //testBlock.collider.SetCircleCollision(0.5, types.Vec2{}, true);
-    testBlock.collider.SetRectCollision(types.Vec2{ .x = 10, .y = 1 }, types.Vec2{}, false);
+    testBlock.collider.SetRectCollision(types.Vec2{ .x = 10, .y = 1 }, types.Vec2{}, true);
+    testBlock.physics.static = true;
 
-    player.collider.SetCircleCollision(0.5, types.Vec2{}, true);
-    //player.collider.SetRectCollision(types.Vec2{ .x = 1, .y = 1 }, types.Vec2{}, false);
+    //player.collider.SetCircleCollision(0.5, types.Vec2{}, true);
+    player.collider.SetRectCollision(types.Vec2{ .x = 1, .y = 1 }, types.Vec2{}, true);
 }
 
 pub fn Update() void {
     //move
     var move: types.Vec2 = types.Vec2{};
-    if (c.glfwGetKey(window.window, c.GLFW_KEY_W) == c.GLFW_PRESS)
+    if (input.GetKey(input.KEY_W))
         move.y += playerSpeed * time.DeltaTime();
-    if (c.glfwGetKey(window.window, c.GLFW_KEY_A) == c.GLFW_PRESS)
+    if (input.GetKey(input.KEY_A))
         move.x -= playerSpeed * time.DeltaTime();
-    if (c.glfwGetKey(window.window, c.GLFW_KEY_S) == c.GLFW_PRESS)
+    if (input.GetKey(input.KEY_S))
         move.y -= playerSpeed * time.DeltaTime();
-    if (c.glfwGetKey(window.window, c.GLFW_KEY_D) == c.GLFW_PRESS)
+    if (input.GetKey(input.KEY_D))
         move.x += playerSpeed * time.DeltaTime();
 
     player.transform.pos.x += (player.transform.up().x * move.y) + (player.transform.right().x * move.x);
     player.transform.pos.y += (player.transform.up().y * move.y) + (player.transform.right().y * move.x);
 
-    //rotation
-    //if (c.glfwGetKey(window.window, c.GLFW_KEY_Q) == c.GLFW_PRESS)
-    //    player.transform.rot -= playerRotSpeed * time.DeltaTime();
-    //if (c.glfwGetKey(window.window, c.GLFW_KEY_E) == c.GLFW_PRESS)
-    //    player.transform.rot += playerRotSpeed * time.DeltaTime();
-
-    if (c.glfwGetKey(window.window, c.GLFW_KEY_R) == c.GLFW_PRESS)
-        player.graphic.StartAnimation();
+    if (input.GetKey(input.KEY_R))
+        player.graphic.PlayAnimation();
+    if (input.GetKey(input.KEY_T))
+        player.graphic.PauseAnimation();
 }
 
 fn Test(other: *types.Object) void {

@@ -3,6 +3,7 @@ const c = @import("c.zig").c;
 
 const graphics = @import("graphics.zig");
 const camera = @import("camera.zig");
+const time = @import("time.zig");
 
 //window properties
 pub var window: *c.GLFWwindow = undefined;
@@ -19,9 +20,9 @@ fn GlfwErrorCallback(err: c_int, description: [*c]const u8) callconv(.C) void {
     std.debug.print("GLFW error {}: {s}\n", .{ err, desc });
 }
 
-fn WindowResized(w: c_int, h: c_int) callconv(.C) void {
-    glWidth = w;
-    glHeight = h;
+fn WindowResized(_: ?*c.GLFWwindow, width: c_int, height: c_int) callconv(.C) void {
+    glWidth = width;
+    glHeight = height;
 
     c.glViewport(0, 0, glWidth, glHeight);
     graphics.SetSize(glWidth, glHeight);
@@ -59,6 +60,7 @@ pub fn Start(title: []const u8, width: c_int, height: c_int) void {
 
     c.glfwMakeContextCurrent(window);
     _ = c.gladLoadGL(c.glfwGetProcAddress);
+    _ = c.glfwSetWindowSizeCallback(window, &WindowResized);
 
     c.glViewport(0, 0, width, height);
     c.glfwGetFramebufferSize(window, &glWidth, &glHeight);
@@ -68,7 +70,7 @@ pub fn Start(title: []const u8, width: c_int, height: c_int) void {
     c.glBlendFunc(c.GL_SRC_ALPHA, c.GL_ONE_MINUS_SRC_ALPHA);
 
     //unlock fps
-    c.glfwSwapInterval(0);
+    c.glfwSwapInterval(1);
     c.glfwSetInputMode(window, c.GLFW_STICKY_KEYS, c.GLFW_TRUE);
 
     graphics.Start(glWidth, glHeight);
@@ -76,16 +78,6 @@ pub fn Start(title: []const u8, width: c_int, height: c_int) void {
 
 //update the window
 pub fn Update() void {
-
-    //check if window has been resized
-    var width: c_int = undefined;
-    var height: c_int = undefined;
-
-    c.glfwGetFramebufferSize(window, &width, &height);
-    if (glWidth != width) {
-        WindowResized(width, height);
-    } else if (glHeight != height)
-        WindowResized(width, height);
 
     //render
     c.glClearColor(camera.backgroundColour.r, camera.backgroundColour.g, camera.backgroundColour.b, 1.0);

@@ -1,8 +1,6 @@
 const std = @import("std");
 const c = @import("c.zig").c;
 
-const PI: f32 = 3.14159;
-
 const shaders = @import("shaders.zig");
 const types = @import("types.zig");
 const objectHandler = @import("objectHandler.zig");
@@ -88,7 +86,7 @@ fn SetMatrixUniform(pos: types.Vec2, rot: f32, scale: types.Vec2) void {
     var location: c_int = c.glGetUniformLocation(shaders.program, "objectTransform");
     c.glUniformMatrix3fv(location, 1, c.GL_FALSE, &matrix[0]);
 
-    var rrot = (-rot) * PI / 180.0;
+    var rrot = (-rot) * std.math.pi / 180.0;
     matrix = [_]f32{
         std.math.cos(rrot),  std.math.sin(rrot), 0,
         -std.math.sin(rrot), std.math.cos(rrot), 0,
