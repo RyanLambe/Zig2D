@@ -53,6 +53,8 @@ pub fn Start() void {
     player.collider.SetRectCollision(types.Vec2{ .x = 1, .y = 1 }, types.Vec2{}, true);
 }
 
+var maxPos: f32 = 0;
+
 pub fn Update() void {
     //move
     var move: types.Vec2 = types.Vec2{};
@@ -65,8 +67,14 @@ pub fn Update() void {
     if (input.GetKey(input.KEY_D))
         move.x += playerSpeed * time.DeltaTime();
 
-    player.transform.pos.x += (player.transform.up().x * move.y) + (player.transform.right().x * move.x);
-    player.transform.pos.y += (player.transform.up().y * move.y) + (player.transform.right().y * move.x);
+    player.physics.velocity.x += (player.transform.up().x * move.y) + (player.transform.right().x * move.x);
+    player.physics.velocity.y += (player.transform.up().y * move.y) + (player.transform.right().y * move.x);
+
+    if (player.transform.pos.y > maxPos) {
+        maxPos = player.transform.pos.y;
+    }
+
+    std.debug.print("pos: {}, max: {}\n", .{ player.transform.pos.y, maxPos });
 
     if (input.GetKey(input.KEY_R))
         player.graphic.PlayAnimation();

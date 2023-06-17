@@ -18,6 +18,10 @@ pub const Vec2 = struct {
     x: f32 = 0,
     y: f32 = 0,
 
+    pub fn Length(vec: Vec2) f32 {
+        return std.math.sqrt(vec.x * vec.x + vec.y * vec.y);
+    }
+
     pub fn Normalize(vec: Vec2) Vec2 {
         var length = std.math.sqrt(vec.x * vec.x + vec.y * vec.y);
         if (length == 0)
@@ -158,8 +162,8 @@ pub const Graphic = struct {
         }
 
         this.textures[frame] = LoadTexture(imageData, imageLength);
-        
-        if(frame == 0){
+
+        if (frame == 0) {
             this.currentTexture = 0;
         }
     }
@@ -180,11 +184,10 @@ pub const Graphic = struct {
     }
 
     pub fn PrepTexture(this: *@This()) void {
-        
+
         //check if should be texture
         var location: c_int = c.glGetUniformLocation(shaders.program, "useTexture");
         if (this.textures.len > 0) {
-            
             if (time.GetFrame(this.fps) == this.curentFrame or (!this.playing)) {
                 c.glBindTexture(c.GL_TEXTURE_2D, this.textures[this.currentTexture]);
             } else {
@@ -286,10 +289,13 @@ pub const Physics = struct {
 
     static: bool = false,
     mass: f32 = 1,
-    elasticity: f32 = 2.1,
+    elasticity: f32 = 1.75,
 
     velocity: Vec2 = Vec2{},
-    acceleration: Vec2 = Vec2{.x = 0, .y = -9.81},
+    acceleration: Vec2 = Vec2{ .x = 0, .y = -1 },
+
+    staticFriction: f32 = 10,
+    dynamicFriction: f32 = 10,
 
     pub fn ApplyImpulse(this: *@This(), amount: Vec2) void {
         this.velocity.x += amount.x;

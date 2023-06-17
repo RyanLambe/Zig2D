@@ -28,7 +28,6 @@ pub fn Update() void {
         if (objects[i].physics.static)
             continue;
 
-
         //add gravity
         objects[i].physics.acceleration = types.Vec2.Add(objects[i].physics.acceleration, gravity);
 
@@ -36,7 +35,7 @@ pub fn Update() void {
         objects[i].transform.pos = types.Vec2.Add(objects[i].transform.pos, types.Vec2.MulX(objects[i].physics.velocity, time.DeltaTime()));
         objects[i].transform.pos = types.Vec2.Add(objects[i].transform.pos, types.Vec2.MulX(objects[i].physics.acceleration, time.DeltaTime() * time.DeltaTime() * 0.5));
         objects[i].physics.velocity = types.Vec2.Add(objects[i].physics.velocity, types.Vec2.MulX(objects[i].physics.acceleration, time.DeltaTime()));
-        
+
         //remove gravity
         objects[i].physics.acceleration = types.Vec2.Sub(objects[i].physics.acceleration, gravity);
     }
@@ -69,10 +68,10 @@ pub fn Update() void {
         if (collisions.items[i].depth == -1)
             continue;
 
-        if(collisions.items[i].objA.physicsType != types.PhysicsType.PhysicsEnabled)
+        if (collisions.items[i].objA.physicsType != types.PhysicsType.PhysicsEnabled)
             continue;
 
-        if(collisions.items[i].objB.physicsType != types.PhysicsType.PhysicsEnabled)
+        if (collisions.items[i].objB.physicsType != types.PhysicsType.PhysicsEnabled)
             continue;
 
         //collision responces
@@ -83,23 +82,7 @@ pub fn Update() void {
     collisions.deinit();
 }
 
-fn PositionOLD(collision: CollisionData) void {
-    var totalMass: f32 = collision.objA.physics.mass + collision.objB.physics.mass;
-    var correctionScale: f32 = collision.depth / totalMass;
-
-    if (!collision.objA.physics.static) {
-        collision.objA.transform.pos.x -= collision.Normal.x * (collision.objA.physics.mass * correctionScale);
-        collision.objA.transform.pos.y -= collision.Normal.y * (collision.objA.physics.mass * correctionScale);
-    }
-
-    if (!collision.objB.physics.static) {
-        collision.objB.transform.pos.x += collision.Normal.x * (collision.objB.physics.mass * correctionScale);
-        collision.objB.transform.pos.y += collision.Normal.y * (collision.objB.physics.mass * correctionScale);
-    }
-}
-
 fn Position(collision: CollisionData) void {
-    
     var moveableObjects: f32 = 1;
     if ((!collision.objA.physics.static) and (!collision.objB.physics.static))
         moveableObjects = 2;
@@ -116,30 +99,28 @@ fn Position(collision: CollisionData) void {
 }
 
 fn Impulse(collision: CollisionData) void {
-    
     var vRel: types.Vec2 = undefined;
-    if((!collision.objA.physics.static) and (!collision.objA.physics.static)){
+
+    if ((!collision.objA.physics.static) and (!collision.objA.physics.static)) {
         vRel = types.Vec2.Sub(collision.objA.physics.velocity, collision.objB.physics.velocity);
-    }
-    else if (!collision.objA.physics.static){
+    } else if (!collision.objA.physics.static) {
         vRel = collision.objA.physics.velocity;
-    }
-    else if (!collision.objB.physics.static){
+    } else if (!collision.objB.physics.static) {
         vRel = collision.objB.physics.velocity;
-    }
-    else{
+    } else {
         return;
     }
 
-    var e: f32 = std.math.min(collision.objA.physics.elasticity, collision.objB.physics.elasticity);// 3 seems to be a perfect bounce
+    var e: f32 = std.math.min(collision.objA.physics.elasticity, collision.objB.physics.elasticity);
     var vDotN = types.Vec2.Dot(vRel, collision.Normal);
 
-    var impulseMag: f32 = -(1 + e) * vDotN / ((1 / collision.objA.physics.mass) + (1 / collision.objB.physics.mass));
+    //3.98 seems to be a perfect bounce
+    var impulseMag = -(1 + e) * vDotN / ((1 / collision.objA.physics.mass) + (1 / collision.objB.physics.mass));
     var impulse: types.Vec2 = types.Vec2.MulX(collision.Normal, impulseMag);
 
-    if(!collision.objA.physics.static)
+    if (!collision.objA.physics.static)
         collision.objA.physics.ApplyImpulse(impulse);
-    if(!collision.objB.physics.static)
+    if (!collision.objB.physics.static)
         collision.objB.physics.ApplyImpulse(types.Vec2.MulX(impulse, -1));
 }
 

@@ -1,5 +1,6 @@
 const c = @import("c.zig").c;
 const window = @import("../Engine/window.zig");
+const camera = @import("camera.zig");
 const types = @import("types.zig");
 
 //Keyboard Input Values
@@ -142,6 +143,8 @@ pub const MOUSE_BUTTON_RIGHT: c_int = MOUSE_BUTTON_2;
 pub const MOUSE_BUTTON_MIDDLE: c_int = MOUSE_BUTTON_3;
 
 //wrapper functions
+var prevMousePos = types.Vec2{};
+
 pub fn GetKey(key: c_int) bool {
     return c.glfwGetKey(window.window, key) == c.GLFW_PRESS;
 }
@@ -159,10 +162,20 @@ pub fn GetRawMousePos() types.Vec2 {
 
 pub fn GetMousePos() types.Vec2 {
     var mousePos = GetRawMousePos();
+    var windowSize = window.GetWindowSize();
 
-    //scale and center mousePos
+    mousePos = types.Vec2.Sub(mousePos, types.Vec2.DivX(windowSize, 2));
+    mousePos = types.Vec2.MulX(types.Vec2.DivX(mousePos, windowSize.x), camera.scale * 2);
+    mousePos.y *= -1;
 
     return mousePos;
+}
+
+pub fn DeltaMousePos() types.Vec2 {
+    var mousePos = GetMousePos();
+    var out = types.Vec2.Sub(mousePos, prevMousePos);
+    prevMousePos = mousePos;
+    return out;
 }
 
 var locked: bool = false;
@@ -178,14 +191,12 @@ pub fn hideCursor(enabled: bool) void {
     updateCursorState();
 }
 
-fn updateCursorState() void{
-    if(locked){
+fn updateCursorState() void {
+    if (locked) {
         c.glfwSetInputMode(window.window, c.GLFW_CURSOR, c.GLFW_CURSOR_DISABLED);
-    }
-    else if(hidden){
+    } else if (hidden) {
         c.glfwSetInputMode(window.window, c.GLFW_CURSOR, c.GLFW_CURSOR_HIDDEN);
-    }
-    else{
+    } else {
         c.glfwSetInputMode(window.window, c.GLFW_CURSOR, c.GLFW_CURSOR_NORMAL);
     }
 }

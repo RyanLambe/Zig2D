@@ -1,9 +1,10 @@
 const std = @import("std");
-const c = @import("c.zig").c;
+pub const c = @import("c.zig").c;
 
 const graphics = @import("graphics.zig");
 const camera = @import("camera.zig");
 const time = @import("time.zig");
+const types = @import("types.zig");
 
 //window properties
 pub var window: *c.GLFWwindow = undefined;
@@ -90,6 +91,13 @@ pub fn Update() void {
 
 pub fn ShouldClose() bool {
     return c.glfwWindowShouldClose(window) == c.GLFW_TRUE;
+}
+
+pub fn GetWindowSize() types.Vec2 {
+    var x: c_int = undefined;
+    var y: c_int = undefined;
+    c.glfwGetWindowSize(window, &x, &y);
+    return types.Vec2{ .x = @intToFloat(f32, x), .y = @intToFloat(f32, y) };
 }
 
 pub fn Stop() void {
