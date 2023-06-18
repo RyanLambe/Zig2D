@@ -3,6 +3,7 @@ const std = @import("std");
 const window = @import("Engine/window.zig");
 const time = @import("Engine/time.zig");
 const physics = @import("Engine/physics.zig");
+const input = @import("Engine/Input.zig");
 
 const settings = @import("settings.zig");
 const program = @import("Game/gameMain.zig");
@@ -22,6 +23,7 @@ pub fn main() !void {
         program.Update();
         physics.Update();
         time.Update();
+        input.Update();
         window.Update();
     }
 

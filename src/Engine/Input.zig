@@ -174,7 +174,6 @@ pub fn GetMousePos() types.Vec2 {
 pub fn DeltaMousePos() types.Vec2 {
     var mousePos = GetMousePos();
     var out = types.Vec2.Sub(mousePos, prevMousePos);
-    prevMousePos = mousePos;
     return out;
 }
 
@@ -199,4 +198,8 @@ fn updateCursorState() void {
     } else {
         c.glfwSetInputMode(window.window, c.GLFW_CURSOR, c.GLFW_CURSOR_NORMAL);
     }
+}
+
+pub fn Update() void {
+    prevMousePos = GetMousePos();
 }
