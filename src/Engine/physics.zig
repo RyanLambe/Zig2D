@@ -113,15 +113,17 @@ fn Impulse(collision: CollisionData) void {
 
     var e: f32 = std.math.min(collision.objA.physics.elasticity, collision.objB.physics.elasticity);
     var vDotN = types.Vec2.Dot(vRel, collision.Normal);
+    if (vDotN >= 0)
+        return;
 
     //3.98 seems to be a perfect bounce
     var impulseMag = -(1 + e) * vDotN / ((1 / collision.objA.physics.mass) + (1 / collision.objB.physics.mass));
     var impulse: types.Vec2 = types.Vec2.MulX(collision.Normal, impulseMag);
 
     if (!collision.objA.physics.static)
-        collision.objA.physics.ApplyImpulse(impulse);
+        collision.objA.physics.velocity = types.Vec2.Sub(collision.objA.physics.velocity, types.Vec2.MulX(impulse, (1 / collision.objA.physics.mass)));
     if (!collision.objB.physics.static)
-        collision.objB.physics.ApplyImpulse(types.Vec2.MulX(impulse, -1));
+        collision.objB.physics.velocity = types.Vec2.Add(collision.objB.physics.velocity, types.Vec2.MulX(impulse, (1 / collision.objB.physics.mass)));
 }
 
 fn CheckCollision(a: *types.Object, b: *types.Object) CollisionData {

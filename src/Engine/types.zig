@@ -191,11 +191,18 @@ pub const Graphic = struct {
             if (time.GetFrame(this.fps) == this.curentFrame or (!this.playing)) {
                 c.glBindTexture(c.GL_TEXTURE_2D, this.textures[this.currentTexture]);
             } else {
-                var frame = @mod(@intCast(usize, time.GetFrame(this.fps) - this.startFrame), this.textures.len);
-                c.glBindTexture(c.GL_TEXTURE_2D, this.textures[frame]);
+                var f = time.GetFrame(this.fps) - this.startFrame;
+
+                if (f < 0) {
+                    c.glBindTexture(c.GL_TEXTURE_2D, this.textures[0]);
+                    this.currentTexture = 0;
+                } else {
+                    var frame = @mod(@intCast(usize, f), this.textures.len);
+                    c.glBindTexture(c.GL_TEXTURE_2D, this.textures[frame]);
+                    this.currentTexture = frame;
+                }
 
                 this.curentFrame = time.GetFrame(this.fps);
-                this.currentTexture = frame;
             }
 
             c.glUniform1i(location, 1);
@@ -289,16 +296,8 @@ pub const Physics = struct {
 
     static: bool = false,
     mass: f32 = 1,
-    elasticity: f32 = 1.75,
+    elasticity: f32 = 1,
 
     velocity: Vec2 = Vec2{},
     acceleration: Vec2 = Vec2{ .x = 0, .y = -1 },
-
-    staticFriction: f32 = 10,
-    dynamicFriction: f32 = 10,
-
-    pub fn ApplyImpulse(this: *@This(), amount: Vec2) void {
-        this.velocity.x += amount.x;
-        this.velocity.y += amount.y;
-    }
 };

@@ -14,7 +14,7 @@ out vec2 TexCoord;
 void main()
 {
     //transform object to correct position
-    vec3 finalPosition = objectRotation * vec3(vec2(Pos.x, Pos.y) - camPos, 1.0) * objectTransform / camScale;
+    vec3 finalPosition = objectRotation * (vec3(vec2(Pos.x, Pos.y), 1.0) * objectTransform  - vec3(camPos, 1.0)) / camScale;
 
     finalPosition.y *= aspectRatio;
 
