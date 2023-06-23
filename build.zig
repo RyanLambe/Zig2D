@@ -10,8 +10,8 @@ pub fn build(b: *std.build.Builder) void {
         .target = target,
         .optimize = optimize,
     });
-    exe.addIncludePath("./include");
-    exe.addIncludePath("/usr/include");
+    exe.addIncludePath("./OpenGL");
+    exe.addIncludePath("/usr/OpenGL");
     switch (builtin.target.os.tag) {
         .windows => {
             exe.addLibraryPath("./lib/win_x86_64");
@@ -23,8 +23,8 @@ pub fn build(b: *std.build.Builder) void {
         else => {},
     }
     exe.linkLibC();
-    exe.addCSourceFile("include/glad/glad_gl.c", &[_][]const u8{});
-    exe.addCSourceFile("include/LodePng/lodepng.c", &[_][]const u8{});
+    exe.addCSourceFile("OpenGL/glad/glad_gl.c", &[_][]const u8{});
+    exe.addCSourceFile("OpenGL/LodePng/lodepng.c", &[_][]const u8{});
     switch (builtin.target.os.tag) {
         .windows => {
             exe.linkSystemLibrary("gdi32");
