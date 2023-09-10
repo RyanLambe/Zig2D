@@ -111,7 +111,7 @@ fn Impulse(collision: CollisionData) void {
         return;
     }
 
-    var e: f32 = std.math.min(collision.objA.physics.elasticity, collision.objB.physics.elasticity);
+    var e: f32 = @min(collision.objA.physics.elasticity, collision.objB.physics.elasticity);
     var vDotN = types.Vec2.Dot(vRel, collision.Normal);
     if (vDotN >= 0)
         return;
@@ -215,7 +215,7 @@ fn CircleAndCircle(a: *types.Object, b: *types.Object) CollisionData {
     //return collision data
     var data = CollisionData{ .hit = true };
 
-    distance = std.math.max(distance, 0.000001);
+    distance = @max(distance, 0.000001);
     var toB = types.Vec2{ .x = (bx - ax) / distance, .y = (by - ay) / distance };
 
     data.objA = a;
@@ -223,7 +223,7 @@ fn CircleAndCircle(a: *types.Object, b: *types.Object) CollisionData {
     data.A = types.Vec2{ .x = ax + a.collider.colliderScale.circle * toB.x, .y = ay + a.collider.colliderScale.circle * toB.y };
     data.B = types.Vec2{ .x = bx + b.collider.colliderScale.circle * -toB.x, .y = by + b.collider.colliderScale.circle * -toB.y };
     data.depth = std.math.sqrt(((data.B.x - data.A.x) * (data.B.x - data.A.x)) + ((data.B.y - data.A.y) * (data.B.y - data.A.y)));
-    data.depth = std.math.max(data.depth, 0.000001);
+    data.depth = @max(data.depth, 0.000001);
     data.Normal = types.Vec2{ .x = (data.A.x - data.B.x) / data.depth, .y = (data.A.y - data.B.y) / data.depth };
 
     return data;
@@ -241,11 +241,11 @@ fn RectAndCircle(rect: *types.Object, circle: *types.Object) CollisionData {
     var by = circle.transform.pos.y + circle.collider.colliderOffset.y;
 
     //get distance between objects
-    var distanceX: f32 = std.math.max(ax - axs, std.math.min(bx, ax + axs)) - bx;
-    var distanceY: f32 = std.math.max(ay - ays, std.math.min(by, ay + ays)) - by;
+    var distanceX: f32 = @max(ax - axs, @min(bx, ax + axs)) - bx;
+    var distanceY: f32 = @max(ay - ays, @min(by, ay + ays)) - by;
 
     var distance: f32 = std.math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
-    distance = std.math.max(distance, 0.000001);
+    distance = @max(distance, 0.000001);
 
     //check if collision
     if (distance > circle.collider.colliderScale.circle)

@@ -7,7 +7,7 @@ pub const DefaultWidth: c_int = 1280;
 pub const DefaultHeight: c_int = 720;
 
 pub fn SetWindowSize(size: types.Vec2) void {
-    window.c.glfwSetWindowSize(window.window, @floatToInt(c_int, size.x), @floatToInt(c_int, size.y));
+    window.c.glfwSetWindowSize(window.window, @intFromFloat(size.x), @intFromFloat(size.y));
 }
 
 pub fn GetWindowSize() types.Vec2 {

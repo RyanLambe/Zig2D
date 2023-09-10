@@ -157,7 +157,7 @@ pub fn GetRawMousePos() types.Vec2 {
     var x: f64 = undefined;
     var y: f64 = undefined;
     c.glfwGetCursorPos(window.window, &x, &y);
-    return types.Vec2{ .x = @floatCast(f32, x), .y = @floatCast(f32, y) };
+    return types.Vec2{ .x = @floatCast(x), .y = @floatCast(y) };
 }
 
 pub fn GetMousePos() types.Vec2 {

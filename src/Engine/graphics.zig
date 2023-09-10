@@ -54,7 +54,9 @@ pub fn Render() void {
     c.glUniform1f(location, camera.scale);
 
     location = c.glGetUniformLocation(shaders.program, "aspectRatio");
-    c.glUniform1f(location, @intToFloat(f32, width) / @intToFloat(f32, height));
+    var w: f32 = @floatFromInt(width);
+    var h: f32 = @floatFromInt(height);
+    c.glUniform1f(location, w / h);
 
     //render objects
     var objects = objectHandler.GetObjects();
@@ -65,7 +67,7 @@ pub fn Render() void {
         SetMatrixUniform(objects[i].transform.pos, objects[i].transform.rot, objects[i].transform.scale);
 
         location = c.glGetUniformLocation(shaders.program, "objectLayer");
-        c.glUniform1i(location, @intCast(c_int, objects[i].transform.layer));
+        c.glUniform1i(location, @intCast(objects[i].transform.layer));
 
         location = c.glGetUniformLocation(shaders.program, "colour");
         c.glUniform3f(location, objects[i].graphic.colour.r, objects[i].graphic.colour.g, objects[i].graphic.colour.b);

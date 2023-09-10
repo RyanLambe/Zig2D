@@ -5,26 +5,26 @@ pub fn build(b: *std.build.Builder) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
     const exe = b.addExecutable(.{
-        .name = "TestGameThing",
+        .name = "Zig2D",
         .root_source_file = .{ .path = "src/main.zig" },
         .target = target,
         .optimize = optimize,
     });
-    exe.addIncludePath("./OpenGL");
-    exe.addIncludePath("/usr/OpenGL");
+    exe.addIncludePath(.{ .path = "./OpenGL" });
+    exe.addIncludePath(.{ .path = "/usr/OpenGL" });
     switch (builtin.target.os.tag) {
         .windows => {
-            exe.addLibraryPath("./lib/win_x86_64");
+            exe.addLibraryPath(.{ .path = "./OpenGL/GLFW/win_x86_64" });
         },
         .linux => {
-            exe.addLibraryPath("./lib/linux_x86_64");
-            exe.addLibraryPath("/usr/lib");
+            exe.addLibraryPath(.{ .path = "./OpenGL/GLFW/linux_x86_64" });
+            exe.addLibraryPath(.{ .path = "/usr/lib" });
         },
         else => {},
     }
     exe.linkLibC();
-    exe.addCSourceFile("OpenGL/glad/glad_gl.c", &[_][]const u8{});
-    exe.addCSourceFile("OpenGL/LodePng/lodepng.c", &[_][]const u8{});
+    exe.addCSourceFile(.{ .file = .{ .path = "OpenGL/glad/glad_gl.c" }, .flags = &.{} });
+    exe.addCSourceFile(.{ .file = .{ .path = "OpenGL/LodePng/lodepng.c" }, .flags = &.{} });
     switch (builtin.target.os.tag) {
         .windows => {
             exe.linkSystemLibrary("gdi32");

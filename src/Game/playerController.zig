@@ -4,8 +4,6 @@ const objectHandler = @import("../Engine/objectHandler.zig");
 const input = @import("../Engine/Input.zig");
 const time = @import("../Engine/time.zig");
 
-const assets = @import("assets.zig");
-
 //character object
 var object: *types.Object = undefined;
 
@@ -33,17 +31,17 @@ pub fn Update() void {
     //move
     if (input.GetKey(input.KEY_A)) {
         object.transform.pos.x -= playerSpeed * time.DeltaTime();
-        assets.PlayRunLeftGraphic(&object.graphic);
+        //assets.PlayRunLeftGraphic(&object.graphic);
         right = false;
     } else if (input.GetKey(input.KEY_D)) {
         object.transform.pos.x += playerSpeed * time.DeltaTime();
-        assets.PlayRunRightGraphic(&object.graphic);
+        //assets.PlayRunRightGraphic(&object.graphic);
         right = true;
     } else {
         if (right) {
-            assets.PlayIdleRightGraphic(&object.graphic);
+            //assets.PlayIdleRightGraphic(&object.graphic);
         } else {
-            assets.PlayIdleLeftGraphic(&object.graphic);
+            //assets.PlayIdleLeftGraphic(&object.graphic);
         }
     }
 
@@ -56,9 +54,9 @@ pub fn Update() void {
     //play jump graphic
     if (!grounded) {
         if (right) {
-            assets.PlayJumpRightGraphic(&object.graphic);
+            //assets.PlayJumpRightGraphic(&object.graphic);
         } else {
-            assets.PlayJumpLeftGraphic(&object.graphic);
+            //assets.PlayJumpLeftGraphic(&object.graphic);
         }
     }
 

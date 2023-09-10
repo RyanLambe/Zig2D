@@ -15,14 +15,15 @@ pub fn Update() void {
 }
 
 pub fn Calibrate(amount: f32) void {
-    
     startTime += amount;
 }
 
 pub fn GetTime() f32 {
-    return @floatCast(f32, c.glfwGetTime()) - startTime;
+    var global: f32 = @floatCast(c.glfwGetTime());
+    return global - startTime;
 }
 
 pub fn GetFrame(fps: i32) i32 {
-    return @floatToInt(i32, GetTime() * @intToFloat(f32, fps));
+    var f: f32 = @floatFromInt(fps);
+    return @intFromFloat(GetTime() * f);
 }

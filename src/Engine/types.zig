@@ -197,7 +197,8 @@ pub const Graphic = struct {
                     c.glBindTexture(c.GL_TEXTURE_2D, this.textures[0]);
                     this.currentTexture = 0;
                 } else {
-                    var frame = @mod(@intCast(usize, f), this.textures.len);
+                    var frame: usize = @intCast(f);
+                    frame = @mod(frame, this.textures.len);
                     c.glBindTexture(c.GL_TEXTURE_2D, this.textures[frame]);
                     this.currentTexture = frame;
                 }
@@ -229,7 +230,7 @@ fn LoadTexture(imageData: *const u8, imageLength: c_ulonglong) c_uint {
     var err = c.lodepng_decode_memory(&data, &width, &height, imageData, imageLength, 6, 8);
 
     if (err != 1) {
-        c.glTexImage2D(c.GL_TEXTURE_2D, 0, c.GL_RGBA, @intCast(c_int, width), @intCast(c_int, height), 0, c.GL_RGBA, c.GL_UNSIGNED_BYTE, data);
+        c.glTexImage2D(c.GL_TEXTURE_2D, 0, c.GL_RGBA, @intCast(width), @intCast(height), 0, c.GL_RGBA, c.GL_UNSIGNED_BYTE, data);
         c.glGenerateMipmap(c.GL_TEXTURE_2D);
         return id;
     } else {

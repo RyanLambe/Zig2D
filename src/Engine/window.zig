@@ -8,8 +8,8 @@ const types = @import("types.zig");
 
 //window properties
 pub var window: *c.GLFWwindow = undefined;
-var glWidth = @intCast(c_int, 0);
-var glHeight = @intCast(c_int, 0);
+var glWidth: c_int = 0;
+var glHeight: c_int = 0;
 
 var started = false;
 var glfwStarted = false;
@@ -97,7 +97,7 @@ pub fn GetWindowSize() types.Vec2 {
     var x: c_int = undefined;
     var y: c_int = undefined;
     c.glfwGetWindowSize(window, &x, &y);
-    return types.Vec2{ .x = @intToFloat(f32, x), .y = @intToFloat(f32, y) };
+    return types.Vec2{ .x = @floatFromInt(x), .y = @floatFromInt(y) };
 }
 
 pub fn Stop() void {
