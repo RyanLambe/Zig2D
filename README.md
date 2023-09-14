@@ -1,10 +1,12 @@
 # Zig2D
-A Simple 2D Game Engine using Zig and OpenGL
+Zig2D is a 2D game engine that uses Zig and OpenGL to create cross-platform games. It supports physics, animated sprites, input handling, and more. Zig2D is easy to use and extend, and lets you focus on your game logic instead of low-level graphics details.
 
 ## Features
-- Animated Sprites
-- Layers
+- Collision Detection
 - Physics
+- Animated Sprites
 
-# More information
+# Documentation
 See the [Github Wiki](https://github.com/RyanLambe/Zig2D/wiki) for more information
+
+## Watch a Demo: https://www.youtube.com/watch?v=_DofPWUWvO0
