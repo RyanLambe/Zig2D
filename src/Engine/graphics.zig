@@ -64,7 +64,7 @@ pub fn Render() void {
     while (i < objects.len) : (i += 1) {
 
         //update object uniform
-        SetMatrixUniform(objects[i].transform.pos, objects[i].transform.rot, objects[i].transform.scale);
+        SetMatrixUniform(objects[i].transform.pos, -objects[i].transform.rot, objects[i].transform.scale);
 
         location = c.glGetUniformLocation(shaders.program, "objectLayer");
         c.glUniform1i(location, @intCast(objects[i].transform.layer));
