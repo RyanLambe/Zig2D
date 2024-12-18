@@ -6,8 +6,8 @@ Zig2D is a 2D game engine that uses Zig and OpenGL to create cross-platform game
 - Physics
 - Animated Sprites
 
+# Watch a Demo:
+[![YouTube](http://i.ytimg.com/vi/_DofPWUWvO0/hqdefault.jpg)](https://www.youtube.com/watch?v=_DofPWUWvO0)
+
 # Documentation
 See the [Github Wiki](https://github.com/RyanLambe/Zig2D/wiki) for more information
-
-### Watch a Demo:
-[![YouTube](http://i.ytimg.com/vi/_DofPWUWvO0/hqdefault.jpg)](https://www.youtube.com/watch?v=_DofPWUWvO0)
